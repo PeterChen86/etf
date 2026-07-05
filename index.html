@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -45,6 +45,13 @@ td{padding:9px 10px;border-bottom:1px solid var(--border)}tr:last-child td{borde
 .modal-bg.show{display:flex}
 .modal{background:var(--card);border-radius:16px;padding:24px;width:380px;max-width:92vw;box-shadow:0 12px 40px rgba(0,0,0,.2)}
 .modal h3{font-size:16px;margin-bottom:16px;font-weight:600}
+.welcome{text-align:center;padding:60px 20px;animation:fadeIn .5s}
+.welcome h2{font-size:22px;margin-bottom:12px;color:var(--text)}
+.welcome p{color:var(--dim);margin-bottom:24px;font-size:14px}
+.welcome .big-btn{display:inline-block;background:var(--grad1);color:#fff;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;border:none;box-shadow:0 4px 16px rgba(102,126,234,.4);transition:all .2s}
+.welcome .big-btn:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(102,126,234,.5)}
+.welcome .steps{text-align:left;max-width:320px;margin:20px auto;font-size:13px;color:var(--dim)}
+.welcome .steps div{padding:6px 0}
 .fg{margin-bottom:12px}.fg label{display:block;font-size:11px;color:var(--dim);margin-bottom:3px;font-weight:600}
 .fg input,.fg select{width:100%;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:13px;outline:none}
 .fg input:focus{border-color:var(--blue)}
@@ -95,7 +102,18 @@ td{padding:9px 10px;border-bottom:1px solid var(--border)}tr:last-child td{borde
   <div class="cards" id="sum"></div>
   <div id="remArea"></div>
   <div id="adviceArea"></div>
-  <div class="tabs">
+  
+<div id="welcomeScreen" class="welcome" style="display:none">
+  <h2>👋 欢迎使用 ETF 定投助手</h2>
+  <p>轻松管理你的ETF持仓，实时查看收益</p>
+  <div class="steps">
+    <div>📌 第一步：添加你持有的ETF基金</div>
+    <div>📊 第二步：实时查看盈亏和行情</div>
+    <div>🤖 第三步：获取AI智能投资建议</div>
+  </div>
+  <button class="big-btn" onclick="openAdd()">✨ 添加我的第一只ETF</button>
+</div>
+<div class="">
     <div class="tab on" data-t="hold">📋 持仓</div>
     <div class="tab" data-t="chart">📈 分时</div>
     <div class="tab" data-t="news">🔥 热点</div>
@@ -155,12 +173,11 @@ td{padding:9px 10px;border-bottom:1px solid var(--border)}tr:last-child td{borde
 </div>
 
 <script>
-const D=[
-  {id:1,n:'通信ETF国泰',c:'515880',s:2600,co:0.839,p:0,date:'2025-06-01',ratio:2},
-  {id:2,n:'光伏ETF华泰柏瑞',c:'515790',s:1300,co:1.016,p:0,date:'2025-05-15'}
-];
+const D=[];
+const _saved=localStorage.getItem('etf');
+let H=_saved?JSON.parse(_saved):[];
+let isFirstVisit=!_saved;
 localStorage.removeItem('etf_h');localStorage.removeItem('etf_inv');
-let H=JSON.parse(localStorage.getItem('etf')||'null')||JSON.parse(JSON.stringify(D));
 let src=localStorage.getItem('etf_src')||'tencent';
 let editId=null,chartOn=true,calY,calM_,minCache={};
 const $=id=>document.getElementById(id);
@@ -519,7 +536,7 @@ function saveIt(){
   if(!n||!c){alert('名称和代码必填');return;}
   if(editId){const h=H.find(x=>x.id===editId);if(h){h.n=n;h.c=c;h.s=s;h.co=co;if(p>0)h.p=p;h.date=date;h.ratio=ratio>1?ratio:0;}}
   else{const mx=H.reduce((a,x)=>Math.max(a,x.id),0);H.push({id:mx+1,n,c,s,co,p,date,ratio:ratio>1?ratio:0});}
-  sav();closeM();refresh();
+  sav();closeM();isFirstVisit=false;refresh();
 }
 function del(id){if(!confirm('确定删除？'))return;H=H.filter(h=>h.id!==id);sav();refresh();}
 
